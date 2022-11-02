@@ -3,7 +3,7 @@ import {useState} from 'react'
 import styled from "styled-components";
 import MovieComponent from "./components/MovieComponent";
 import MovieInfoComponent from './components/MovieInfoComponent';
-const API_KEY = "63dae85e"
+export const API_KEY = "63dae85e"
 
 const Container =styled.div`
   display: flex;
@@ -72,6 +72,13 @@ const MovieListContainer = styled.div`
   justify-content: space-evenly;
 `;
 
+const Placeholder = styled.img`
+  width: 120px;
+  height: 120px;
+  margin: 150px;
+  opacity: 50%;
+`;
+
 function App() {
   const [searchQuery, updateSearchQuery] = useState("");
   const [timeoutId, updateTimeoutId] = useState();
@@ -107,7 +114,10 @@ function App() {
           onChange={onTextChange}/>
         </SearchBox>
       </Header>
-      {selectedMovie && <MovieInfoComponent selectedMovie={selectedMovie}/>}
+      {selectedMovie && <MovieInfoComponent 
+      selectedMovie={selectedMovie}
+      onMovieSelect={onMovieSelect}
+      />}
       <MovieListContainer>
         { movieList?.length 
         ? movieList.map((movie, index)=> (
@@ -117,7 +127,7 @@ function App() {
         onMovieSelect={onMovieSelect}
         />
         ))
-        : "No Movie Search"}
+        : <Placeholder src="/movie-icon.svg"/>}
       </MovieListContainer>
     </Container>
   );
