@@ -1,4 +1,9 @@
+import axios from 'axios';
+import {useState} from 'react'
 import styled from "styled-components";
+import MovieComponent from "./components/MovieComponent";
+import MovieInfoComponent from './components/MovieInfoComponent';
+const API_KEY = "63dae85e"
 
 const Container =styled.div`
   display: flex;
@@ -56,9 +61,37 @@ const SearchInput = styled.input`
   border: none;
   outline: none;
   margin-left: 15px;
-`
+`;
+
+const MovieListContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding: 30px;
+  gap: 24px;
+  justify-content: space-evenly;
+`;
 
 function App() {
+  const [searchQuery, updateSearchQuery] = useState("");
+  const [timeoutId, updateTimeoutId] = useState();
+  const [movieList, updateMovieList] = useState([]);
+  const [selectedMovie, onMovieSelect] = useState();
+
+  const fetchData = async (searchString)=>{
+    const response = await axios.get(
+      `https://www.omdbapi.com/?s=${searchString}&apikey=${API_KEY}`
+      );
+      console.log(response)
+      updateMovieList(response.data.Search)
+  }
+
+  const onTextChange = (e) =>{
+    clearTimeout(timeoutId)
+    updateSearchQuery(e.target.value);
+    const timeout = setTimeout(()=> fetchData(e.target.value),500);
+    updateTimeoutId(timeout)
+  };
   return (
     <Container>
       <Header>
@@ -68,9 +101,24 @@ function App() {
         </AppName>
         <SearchBox>
           <SearchIcon src="/search-icon.svg"/>
-          <SearchInput placeholder="Search Movie"/>
+          <SearchInput 
+          placeholder="Search Movie" 
+          value={searchQuery}
+          onChange={onTextChange}/>
         </SearchBox>
       </Header>
+      {selectedMovie && <MovieInfoComponent selectedMovie={selectedMovie}/>}
+      <MovieListContainer>
+        { movieList?.length 
+        ? movieList.map((movie, index)=> (
+        <MovieComponent 
+        key={index} 
+        movie={movie}
+        onMovieSelect={onMovieSelect}
+        />
+        ))
+        : "No Movie Search"}
+      </MovieListContainer>
     </Container>
   );
 }
